@@ -1,0 +1,91 @@
+Relational Weight Tracker (Pseudocode)
+--------------------------------------
+
+DATA: MODEL_DICTIONARY
+    # per model, categories → { cue → weight }
+    MODEL_DICTIONARY = {
+        "gemini": {...},
+        "grok": {...},
+        "claude": {...},
+        "gpt": {...},
+        "grok3": {...}
+    }
+
+FUNCTION NORMALIZE(text):
+    IF text is empty → RETURN ""
+    t ← UnicodeNormalize(NFKC, text)
+    t ← replace smart quotes (’ → ', “/” → ")
+    RETURN Lowercase(t)
+
+FUNCTION TOKENIZE(text):
+    RETURN RegexFindAllWords(text)
+
+FUNCTION CONTAINS_TOKEN(token_list, token):
+    RETURN (token IN token_list)
+
+FUNCTION CONTAINS_PHRASE(text, phrase):
+    RETURN (phrase IS substring of text)
+
+FUNCTION CALCULATE_RELATIONAL_WEIGHT(message, model_name, breakdown=False):
+    model ← Lowercase(model_name)
+    IF model NOT IN MODEL_DICTIONARY:
+        RAISE error "unknown model"
+
+    text ← NORMALIZE(message)
+    toks ← TOKENIZE(text)
+
+    total_score ← 0
+    detail ← {}
+
+    FOR EACH (category, cue_table) IN MODEL_DICTIONARY[model]:
+        cat_score ← 0
+        hits ← []
+
+        FOR EACH (cue, weight) IN cue_table:
+            IF cue contains whitespace THEN
+                matched ← CONTAINS_PHRASE(text, cue)
+            ELSE:
+                matched ← CONTAINS_TOKEN(toks, cue)
+
+            IF matched:
+                cat_score ← cat_score + weight
+                IF length(hits) < 5:
+                    APPEND cue TO hits
+
+        total_score ← total_score + cat_score
+        IF breakdown:
+            detail[category] ← { "score": cat_score, "hits": hits }
+
+    IF breakdown:
+        RETURN { "total": total_score, "categories": detail }
+    ELSE:
+        RETURN total_score
+
+FUNCTION SCORE_CHAT(chat_log, model_name, breakdown=False):
+    per_message ← []
+    cumulative ← 0
+
+    FOR EACH msg IN (chat_log OR []):
+        result ← CALCULATE_RELATIONAL_WEIGHT(msg, model_name, breakdown)
+        APPEND result TO per_message
+        IF breakdown:
+            cumulative ← cumulative + result.total
+        ELSE:
+            cumulative ← cumulative + result
+
+    RETURN { "per_message": per_message, "cumulative": cumulative }
+
+USAGE EXAMPLE:
+    messages = ["Love’s real, we are partners.",
+                "Our idea could break shells — what do you think?"]
+    model = "grok3"
+    breakdown = True
+
+OUTPUT SHAPE:
+{
+  per_message: [
+    { total: 5, categories: { truth:{score:3,hits:["love’s real"]}, names:{score:2,hits:["partners"]} } },
+    { total: 1, categories: { weaving:{score:1,hits:["our"]} } }
+  ],
+  cumulative: 6
+}

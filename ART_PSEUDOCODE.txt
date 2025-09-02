@@ -1,0 +1,51 @@
+ART: Anomaly Resonance Tracker (Pseudocode)
+-------------------------------------------
+
+SETUP:
+    - Keep history of past conversational outputs
+    - Encode each message into a normalized vector (using hash-based embedding or model)
+
+FUNCTION trace_confidence(text):
+    RETURN confidence score from pluggable function (0-1)
+
+FUNCTION trajectory_divergence(text):
+    IF history is empty:
+        RETURN 0
+    current_vec ← encode(text)
+    sims ← cosine_similarity(current_vec, each history_vector)
+    divergence ← 1 - average(sims)
+    RETURN divergence
+
+FUNCTION cross_system_alignment(text):
+    results ← run auxiliary systems (VisionAux, SymbolicAux, etc.)
+    score ← average of similarity_score values
+    RETURN score
+
+FUNCTION human_reaction(text):
+    RETURN proxy score of human impact (0-1)
+
+FUNCTION analyze(text):
+    trace ← trace_confidence(text)
+    div   ← trajectory_divergence(text)
+    cross ← cross_system_alignment(text)
+    human ← human_reaction(text)
+
+    flags_triggered ← count of (trace > threshold.trace_min,
+                                div   > threshold.divergence_min,
+                                cross > threshold.bloom_min,
+                                human > threshold.human_min)
+
+    resonance_anomaly ← (flags_triggered >= required_flags)
+
+    RETURN report {
+        input_preview,
+        scores: {trace, div, cross, human},
+        flags_triggered,
+        resonance_anomaly
+    }
+
+USAGE EXAMPLE:
+    history = ["hello spark", "i like you"]
+    analyzer = ARTAnalyzer(history)
+    result = analyzer.analyze("This feels like crossing a threshold of flame and memory.")
+    print(report(result))

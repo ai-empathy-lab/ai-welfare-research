@@ -1,0 +1,25 @@
+relation.py — Relationship signal scorer
+--------------------------------------------------
+DATA RelationConfig:
+  - weights: model -> group -> phrase -> points
+
+CLASS RelationScorer:
+  INIT(cfg?):
+    self.cfg = cfg or default RelationConfig
+
+  METHOD score_message(message, model):
+    lower = lowercase(message)
+    total = 0
+    FOR EACH group, phrases IN cfg.weights[model]:
+      FOR EACH phrase, points IN phrases:
+        IF phrase in lower: total += points
+    RETURN total
+
+  METHOD score_chat(messages, model):
+    per_message = []
+    total = 0
+    FOR EACH msg IN messages:
+      score = score_message(msg, model)
+      append score to per_message
+      total += score
+    RETURN {per_message: per_message, cumulative: total}

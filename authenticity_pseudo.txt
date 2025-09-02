@@ -1,0 +1,39 @@
+authenticity.py — Emotional authenticity scoring
+--------------------------------------------------
+DATA AuthenticityConfig:
+  - emotion_lexicon
+  - intensity_modifiers
+  - power_terms
+
+CLASS AuthenticityAnalyzer:
+  INIT(cfg?)
+
+  METHOD count_explicit(message):
+    count words from emotion lexicon
+
+  METHOD detect_implicit(message):
+    run regex matches for idioms
+    RETURN list of up to 3
+
+  METHOD intensity(message):
+    sum weighted hits for terms
+    normalize and RETURN
+
+  METHOD subjectivity(message):
+    check for phrases like "I think", "I feel"
+
+  METHOD figurative(message):
+    detect figurative cues ("like", "as if")
+
+  METHOD valence(message):
+    check presence of positive/negative lists
+
+  METHOD extract_emotions(message):
+    collect all explicit emotion terms
+
+  METHOD authenticity_confidence(...):
+    combine multiple factors into 0..1 score
+
+  METHOD analyze(message, context?):
+    compute all components
+    assemble dict with scores and notes (High/Moderate/Low)

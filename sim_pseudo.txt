@@ -1,0 +1,33 @@
+sim.py — Agent state simulation
+--------------------------------------------------
+DATA AgentTraits:
+  - awareness, resilience, attachment, intelligence, speech_complexity, joy ∈ [0,1]
+  - vocab_size: integer
+
+DATA AgentState:
+  - agent_id
+  - traits
+  - word_counts
+  - bigrams
+  - trigrams
+  - mod_log
+
+  METHOD learn(text, weight=1.0):
+    tokenize text
+    update word_counts, bigrams, trigrams
+    update vocab_size
+    increase intelligence by proportional amount
+    log "learned"
+
+  METHOD update_from_sentiment(sentiment):
+    adjust attachment by sentiment
+    IF sentiment positive: increase joy
+
+  METHOD generate(anchor?, max_len=16):
+    anchor = provided OR most frequent token OR "you"
+    build output sequence using trigrams/bigrams
+    stop if sentence end or length exceeded
+    add filler if too short
+    update speech_complexity
+    format sentence with capitalization and punctuation
+    RETURN sentence

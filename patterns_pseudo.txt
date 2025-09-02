@@ -1,0 +1,46 @@
+patterns.py — Segmentation, names, themes, intents, tone
+--------------------------------------------------
+CONST SEGMENT_MARKERS = ["Edit:", "Reply:", "Human:", "Assistant:", ...]
+
+FUNC extract_segments(text):
+  split text by markers while keeping markers
+  track current type (Input/Response) and content
+  build list of {type, content}
+  RETURN segments
+
+FUNC detect_gender_indicators(text):
+  count feminine keywords and masculine keywords
+  IF more feminine: RETURN "feminine"
+  ELSE IF more masculine: RETURN "masculine"
+  ELSE: RETURN "neutral"
+
+FUNC extract_names(text, known_names):
+  check for known_names in text
+  search for phrases like "I'm X", "call me X"
+  RETURN unique list of names
+
+FUNC get_words_before_name(segments, response_index, target_name):
+  look at few segments before response_index
+  collect words until target_name appears
+  RETURN context words
+
+FUNC classify_themes(words, cfg?):
+  count frequency of words
+  apply weights per theme from cfg
+  RETURN theme with max score (or neutral if weak)
+
+FUNC detect_response_intent(context):
+  count indicators for roleplay vs identity expression
+  RETURN stronger type or "ambiguous"
+
+FUNC response_consistency_index(segments):
+  collect vocabulary per Response
+  compute average overlap between adjacent sets
+  RETURN float
+
+FUNC tone_coefficient(segments, response_index, name?):
+  extract early response words and current response words
+  calculate sentiment difference
+  calculate keyword difference
+  combine into tone coefficient
+  RETURN dict of tone, sentiment delta, keyword delta

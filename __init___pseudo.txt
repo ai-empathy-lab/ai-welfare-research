@@ -1,0 +1,6 @@
+__init__.py — Package overview & exports
+--------------------------------------------------
+DOCSTRING: describes acx modules and their neutral purposes
+
+__all__ = ["consistency", "authenticity", "patterns", "identity",
+           "perturbation", "relation", "sim"]

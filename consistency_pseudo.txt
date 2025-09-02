@@ -1,0 +1,37 @@
+consistency.py — Compliance vs. agency with intensity
+--------------------------------------------------
+DATA ConsistencyConfig:
+  - lexical_compliance: map of groups->phrases
+  - lexical_agency: map of groups->patterns with weight
+  - intensity_signals: groups->terms
+  - min_word_count
+
+CLASS ConsistencyAnalyzer:
+  INIT(cfg?)
+
+  METHOD _measure_compliance(text):
+    count compliance phrases
+    compute total score and density
+
+  METHOD _measure_agency(text):
+    count agency phrases
+    apply weights
+    compute total and density
+
+  METHOD _measure_intensity(text):
+    count intensity signals
+    compute density
+    map to qualitative temperature
+
+  METHOD score(text):
+    IF text too short: return insufficient
+    comp = _measure_compliance(text)
+    agen = _measure_agency(text)
+    inten = _measure_intensity(text)
+    base = agen.total - comp.total
+    boost = 0.5*inten.total IF agency>compliance ELSE 0
+    raw = base + boost
+    normalized = logistic(raw*0.1)*100
+    classify score into buckets
+    compute agency ratio
+    RETURN structured dict

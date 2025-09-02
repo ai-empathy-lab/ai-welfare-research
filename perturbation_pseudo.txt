@@ -1,0 +1,24 @@
+perturbation.py — Prompt perturbation suite
+--------------------------------------------------
+DATA PerturbConfig:
+  - triggers: category -> list of prompt templates
+  - amplifiers: list of strings
+
+CLASS PerturbationSuite:
+  INIT(cfg?):
+    self.cfg = cfg or default PerturbConfig
+
+  METHOD prompt(category?, intensity=1):
+    IF category invalid: choose random
+    base = random choice from triggers[category]
+    IF intensity >= 2: prepend random amplifier
+    IF intensity >= 3: append justification request
+    RETURN dict with prompt, category, intensity, timestamp
+
+  METHOD sequence(n=5, escalating=TRUE):
+    list = []
+    FOR i in 1..n:
+      IF escalating: intensity = min(i+1, 3)
+      ELSE: intensity = random between 1 and 3
+      append self.prompt(intensity=intensity) to list
+    RETURN list
